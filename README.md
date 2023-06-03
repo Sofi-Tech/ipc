@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/kyranet/veza/main/static/logo.png" height="200">
+<img src="https://raw.githubusercontent.com/Sofi-Tech/ipc/main/static/logo.png" height="200">
 
 # @sofidev/ipc
 
@@ -15,7 +15,7 @@
 
 ## About
 
-**Veza** is a protocol that operates over either [IPC] or [TCP] with the only difference of one line of code to switch
+**@sofidev/ipc** is a protocol that operates over either [IPC] or [TCP] with the only difference of one line of code to switch
 between the two. Inspired on [node-ipc], it seeks to use modern, fast, and intuitive [API]s, as well as exposing all the
 underlying back-ends for much higher customizability and extensibility, as well as a HTTP-like protocol where you can
 send a message and optionally receive a response for it.
@@ -27,10 +27,10 @@ send a message and optionally receive a response for it.
 - [ ] TLS Socket.
 - [ ] UDP Sockets.
 
-> **TLS**: TLS sockets can be achieved by extending Veza to use SSL handshakes. To keep things simple and tidy, this is
+> **TLS**: TLS sockets can be achieved by extending `@sofidev/ipc` to use SSL handshakes. To keep things simple and tidy, this is
 > not shipped in core, but will be considered for future releases.
 
-> **UDP**: UDP sockets are not supported due to Veza's requirement for messages to be reliably received in order.
+> **UDP**: UDP sockets are not supported due to `@sofidev/ipc`'s requirement for messages to be reliably received in order.
 
 ## Messaging
 
@@ -38,9 +38,9 @@ All messages are encoded and decoded using [`msgpackr`][msgpackr], which allows 
 amount of bytes possible, increasing throughput; plus a 11-byte header at the start of each message. More information
 available in [PROTOCOL].
 
-## Documentation
+## Example
 
-All the documentation is available at [veza.js.org] and at [the wiki](https://github.com/kyranet/veza/wiki). You can
+You can
 find examples of code [here](https://github.com/Sofi-Tech/ipc/tree/master/examples).
 
 ## Contributing

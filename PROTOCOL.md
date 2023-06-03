@@ -1,12 +1,12 @@
-# Veza Protocol
+# `@sofidev/ipc` Protocol
 
-The Veza protocol operates on a two-way long-polling TCP request with binary transfers only. This document explains how
+The `@sofidev/ipc` protocol operates on a two-way long-polling TCP request. This document explains how
 this protocol works and how must be implemented.
 
 ## Structure
 
 The structure is divided in two key components: the `Server` and the `Client`, the server `open`s a `IPC`/`TCP` server
-and may `close` it eventually, while a `Client` can connect to and disconnect from them, whether Veza uses `IPC` or
+and may `close` it eventually, while a `Client` can connect to and disconnect from them, whether `@sofidev/ipc` uses `IPC` or
 `IPC` is based on where the server is opened to, typically if a numeric port or an IP is passed, it will use `TCP`, and
 `IPC` when a path to a socket file is passed instead.
 
@@ -48,12 +48,12 @@ However, multiple clients can connect to a server just fine.
 
 ## Communication
 
-Veza uses binary-encoded messages to communicate between all sockets, to do so, it uses [msgpackr][msgpackr]
+`@sofidev/ipc` uses messagepack-encoded messages to communicate between all sockets, to do so, it uses [msgpackr][msgpackr]
 to encode messages before sending them, and all the communication happens in `ClientSocket` and in `ServerSocket`
 exclusively, since they define a socket connection.
 
 Each socket is a [duplex][] connection, so they have both a message sender and a receiver. The composition of messages
-using the Veza protocol is the following:
+using the `@sofidev/ipc` protocol is the following:
 
 |   ID    | Receptive | Byte-Length |      Bytes ...      |
 | :-----: | :-------: | :---------: | :-----------------: |
@@ -73,7 +73,7 @@ request).
 
 ### Notes
 
-It is suggested to make a queue receiver to handle the messages, Veza takes advantage of TCP's buffering nature, which
+It is suggested to make a queue receiver to handle the messages, `@sofidev/ipc` takes advantage of TCP's buffering nature, which
 helps lowering the latency and the time it takes to send the messages, which can also mean that two or more messages
 may be received glued up; use the `Byte-Length` header to find the end of the message (and the start of the next), and
 it also may be received partial ─ most routers allow up to 65536 bytes in a segment, so when sending large messages (for
@@ -87,7 +87,7 @@ The handshake has two purposes:
 
 - **Verify**: This step helps identifying if the counterpart "understands" the same language. The slight decode error or
   type mismatch should end on a prompt disconnection.
-- **Identify**: Veza nodes have a name for which they are identified as. For example if a `Server` is named `master`,
+- **Identify**: `@sofidev/ipc` nodes have a name for which they are identified as. For example if a `Server` is named `master`,
   all `Server`s connected to it may send messages to it using `master` as its name.
 
 ```java

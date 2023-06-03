@@ -2,15 +2,15 @@
 
 ## General Statement
 
-Veza is a minimal protocol made on top of the `IPC` and `TCP` protocols (see [PROTOCOL][]), it lacks of cryptography and
+`@sofidev/ipc` is a minimal protocol made on top of the `IPC` and `TCP` protocols (see [PROTOCOL][]), it lacks of cryptography and
 security like [TLS][] when using the `TCP` protocol.
 
 ## Ports
 
 In most operating systems, ports are exposed not only in `localhost`, but also outside the server, this can mean a large
-security hole if Veza handles sensitive information between processes and/or microservices.
+security hole if `@sofidev/ipc` handles sensitive information between processes and/or microservices.
 
-If your Veza server is only supposed to run only in its local machine, we strongly suggest using a **[Firewall][]** like
+If your `@sofidev/ipc` server is only supposed to run only in its local machine, we strongly suggest using a **[Firewall][]** like
 `iptables` for Linux ─ For example, considering `XXXX` is your port, you would need to run the following commands:
 
 ```bash
@@ -32,7 +32,7 @@ For Windows users, SpiceWorks has a [nice guide][windowsfirewall] about this pro
 
 ## Handshakes
 
-If your Veza server connects with other machines, this changes a little more ─ you can whitelist the other machines' IPs
+If your `@sofidev/ipc` server connects with other machines, this changes a little more ─ you can whitelist the other machines' IPs
 with `iptables` (besides `localhost` itself) or implement **an additional handshake**.
 
 Additional handshakes can be made by sending a message from the Server to the Client (or vice versa) and compare certain
@@ -42,7 +42,7 @@ latency implications.
 
 ## Messages
 
-There are many techniques that can be used to enhance security between Veza nodes on the public network, involving a
+There are many techniques that can be used to enhance security between `@sofidev/ipc` nodes on the public network, involving a
 little cryptography with it. Some of the most common techniques can include:
 
 - Send the content and a [MD5][] hash of it, this is exposes the contents but can protect nodes from malicious contents

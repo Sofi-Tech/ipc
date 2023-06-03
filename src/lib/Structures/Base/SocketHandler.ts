@@ -22,7 +22,7 @@ export abstract class SocketHandler {
 	public name: string | null;
 
 	/**
-	 * The internal socket that connects Veza to the network.
+	 * The internal socket that connects @sofidev/ipc to the network.
 	 * @since 0.0.1
 	 */
 	public socket: NetSocket;

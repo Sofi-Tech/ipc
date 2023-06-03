@@ -45,7 +45,9 @@
 		"url": "git+https://github.com/Sofi-Tech/ipc.git"
 	},
 	"files": [
-		"dist"
+		"dist/**/*.js*",
+		"dist/**/*.mjs*",
+		"dist/**/*.d*"
 	],
 	"engines": {
 		"node": ">=v16"
@@ -55,7 +57,8 @@
 		"tcp",
 		"socket",
 		"veza",
-		"node-ipc"
+		"node-ipc",
+		"sofi"
 	],
 	"bugs": {
 		"url": "https://github.com/Sofi-Tech/ipc/issues"
