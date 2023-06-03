@@ -1,5 +1,5 @@
 import { EventEmitter } from 'node:events';
-import { type ListenOptions, Server as NetServer, type Socket as NetSocket } from 'node:net';
+import { Server as NetServer, type ListenOptions, type Socket as NetSocket } from 'node:net';
 
 import { ServerSocket } from './ServerSocket.js';
 

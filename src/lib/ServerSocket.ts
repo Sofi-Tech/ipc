@@ -1,6 +1,6 @@
 import { SocketHandler } from './Structures/Base/SocketHandler.js';
 import { makeError } from './Structures/MessageError.js';
-import { type NetworkError, VCLOSE } from './Util/Shared.js';
+import { VCLOSE, type NetworkError } from './Util/Shared.js';
 
 import type { Server } from './Server';
 import type { Socket as NetSocket } from 'node:net';
@@ -19,7 +19,7 @@ export enum ServerSocketStatus {
 	 * The identifying status, the socket has connected but has not identified yet.
 	 * @since 0.7.0
 	 */
-	Identifiying,
+	Identifying,
 	/**
 	 * The disconnected status, the socket has been disconnected and cannot operate anymore.
 	 * @since 0.7.0
@@ -38,7 +38,7 @@ export class ServerSocket extends SocketHandler {
 	}
 
 	public async setup() {
-		this.status = ServerSocketStatus.Identifiying;
+		this.status = ServerSocketStatus.Identifying;
 		this.socket
 			.on('data', this._onData.bind(this))
 			.on('error', this._onError.bind(this))

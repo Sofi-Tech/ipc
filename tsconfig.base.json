@@ -25,10 +25,7 @@
 		"pretty": true,
 		"moduleResolution": "node",
 		"resolveJsonModule": true,
-		"jsx": "preserve",
-		"skipLibCheck": true,
-		"checkJs": true,
-		"incremental": false
+		"skipLibCheck": true
 	},
 	"include": ["**/*.ts", "**/*.tsx"],
 	"exclude": ["node_modules"]
