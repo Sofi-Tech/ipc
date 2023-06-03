@@ -1,9 +1,13 @@
-import { serialize } from 'binarytf';
+import { clearTimeout, setTimeout } from 'node:timers';
+
+import { pack } from 'msgpackr';
+
+import { create, read } from '../../Util/Header.js';
+import { NodeMessage } from '../NodeMessage.js';
+import { Queue } from '../Queue.js';
+
+import type { SendOptions } from '../../Util/Shared.js';
 import type { Socket as NetSocket } from 'node:net';
-import { create, read } from '../../Util/Header';
-import type { SendOptions } from '../../Util/Shared';
-import { NodeMessage } from '../NodeMessage';
-import { Queue } from '../Queue';
 
 /**
  * The abstract socket handler for {@link ClientSocket} and {@link ServerSocket}.
@@ -53,10 +57,10 @@ export abstract class SocketHandler {
 		return new Promise((resolve, reject) => {
 			let id: number;
 			try {
-				const serialized = serialize(data);
+				const serialized = pack(data);
 				const message = create(receptive, serialized);
 				id = read(message).id;
-				this.socket!.write(message);
+				this.socket.write(message);
 
 				if (!receptive) {
 					resolve(undefined);
@@ -76,7 +80,7 @@ export abstract class SocketHandler {
 
 				this.queue.set(id, {
 					resolve: send.bind(null, resolve, false),
-					reject: send.bind(null, reject, false)
+					reject: send.bind(null, reject, false),
 				});
 			} catch (error) {
 				const entry = this.queue.get(id!);
@@ -111,6 +115,11 @@ export abstract class SocketHandler {
  */
 export interface RawMessage {
 	/**
+	 * The message's data
+	 * @since 0.5.0
+	 */
+	data: any;
+	/**
 	 * The message's ID
 	 * @since 0.5.0
 	 */
@@ -120,11 +129,6 @@ export interface RawMessage {
 	 * @since 0.5.0
 	 */
 	receptive: boolean;
-	/**
-	 * The message's data
-	 * @since 0.5.0
-	 */
-	data: any;
 }
 
 type AnyFunction = (...args: any[]) => any;

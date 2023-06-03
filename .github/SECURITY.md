@@ -45,13 +45,13 @@ latency implications.
 There are many techniques that can be used to enhance security between Veza nodes on the public network, involving a
 little cryptography with it. Some of the most common techniques can include:
 
--   Send the content and a [MD5][] hash of it, this is exposes the contents but can protect nodes from malicious contents
-    or requests ─ if the content does not generate the same hash as the from the message, the message is invalid. This
-    approach is very simple but also very efective.
--   [Public-key cryptography][publickeycryptography], this approach is one of the fundamental security ingredients in
-    modern [cryptosystems][], applications and protocols assuring the confidentiality, authenticity and non-repudiability of
-    electronic communications and data storage, it is more complex than the previous approach but does not expose the
-    messages contents.
+- Send the content and a [MD5][] hash of it, this is exposes the contents but can protect nodes from malicious contents
+  or requests ─ if the content does not generate the same hash as the from the message, the message is invalid. This
+  approach is very simple but also very efective.
+- [Public-key cryptography][publickeycryptography], this approach is one of the fundamental security ingredients in
+  modern [cryptosystems][], applications and protocols assuring the confidentiality, authenticity and non-repudiability of
+  electronic communications and data storage, it is more complex than the previous approach but does not expose the
+  messages contents.
 
 [protocol]: ./PROTOCOL.md
 [tls]: https://en.wikipedia.org/wiki/Transport_Layer_Security

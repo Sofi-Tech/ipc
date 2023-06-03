@@ -1,8 +1,2 @@
-# Source files
-/src/ @kyranet
-/tests/ @kyranet
-
-# Project setup
-.yarnrc.yml @favna
-tsconfig.base.json @favna
-tsconfig.eslint.json @favna
+- @imranbarbhuiya
+- @legendhimself

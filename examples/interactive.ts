@@ -1,8 +1,10 @@
 // This example depends on hello.js to be running in another process.
 // This Node is a socket that replies to hello.js with "world!" when it receives "Hello".
 // And uses readline to send messages to the other process.
-import { createInterface } from 'readline';
-import { Client } from '../src/index';
+import process from 'node:process';
+import { createInterface } from 'node:readline';
+
+import { Client } from '../src/index.js';
 
 const node = new Client('interactive')
 	.on('error', (error, client) => console.error(`[IPC] Error from ${client.name}:`, error))
@@ -17,11 +19,11 @@ const node = new Client('interactive')
 	});
 
 // Connect to hello
-node.connectTo(8001).catch(() => console.log('Disconnected!'));
+node.connectTo(8_001).catch(() => console.log('Disconnected!'));
 
 const rl = createInterface({
 	input: process.stdin,
-	output: process.stdout
+	output: process.stdout,
 });
 
 rl.on('line', async (line) => {

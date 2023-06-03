@@ -1,6 +1,8 @@
-import { deserialize } from 'binarytf';
-import { read } from '../Util/Header';
-import type { RawMessage } from './Base/SocketHandler';
+import { unpack } from 'msgpackr';
+
+import { read } from '../Util/Header.js';
+
+import type { RawMessage } from './Base/SocketHandler.js';
 
 /**
  * The queue class that manages messages.
@@ -43,11 +45,12 @@ export class Queue extends Map<number, QueueEntry> {
 			}
 
 			try {
-				const value = deserialize(buffer, 11);
+				const value = unpack(buffer.subarray(11));
 				output.push({ id, receptive, data: value });
 			} catch (error) {
 				output.push({ id: null, receptive: false, data: error });
 			}
+
 			buffer = buffer.subarray(byteLength + 11);
 		}
 
@@ -59,6 +62,6 @@ export class Queue extends Map<number, QueueEntry> {
  * An entry for this queue
  */
 interface QueueEntry {
-	resolve: (value: any) => void;
-	reject: (error: Error) => void;
+	reject(error: Error): void;
+	resolve(value: any): void;
 }

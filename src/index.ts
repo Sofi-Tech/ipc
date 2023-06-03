@@ -1,9 +1,9 @@
-export * from './lib/Client';
-export * from './lib/ClientSocket';
-export * from './lib/Server';
-export * from './lib/ServerSocket';
-export * from './lib/Structures/NodeMessage';
-export { BroadcastOptions, NetworkError, SendOptions } from './lib/Util/Shared';
+export * from './lib/Client.js';
+export * from './lib/ClientSocket.js';
+export * from './lib/Server.js';
+export * from './lib/ServerSocket.js';
+export * from './lib/Structures/NodeMessage.js';
+export type { BroadcastOptions, NetworkError, SendOptions } from './lib/Util/Shared.js';
 
 /**
  * Node.js' server.

@@ -6,7 +6,7 @@ To contribute to this repository, feel free to create a new fork of the reposito
 submit a pull request. We highly suggest [ESLint](https://eslint.org/) to be installed
 in your text editor or IDE of your choice to avoid fail builds from Travis.
 
-1. Fork, clone, and select the **master** branch.
+1. Fork, clone, and select the **main** branch.
 2. Create a new branch in your fork.
 3. Commit your changes, and push them.
-4. Submit a Pull Request [here](https://github.com/kyranet/veza/pulls)!
+4. Submit a Pull Request [here](https://github.com/Sofi-Tech/ipc/pulls)!

@@ -1,12 +1,14 @@
+/* eslint-disable @typescript-eslint/no-loop-func */
+/* eslint-disable promise/prefer-await-to-then */
 // This example depends on hello.js to be running in another process.
 // This Node is a socket that replies to hello.js with "world!" when it receives "Hello".
 
 // This example tests concurrency with parallel messages in IPC.
-import { promisify } from 'node:util';
-import { Client } from '../src/index';
+import { setTimeout as sleep } from 'node:timers/promises';
 
-const sleep = promisify(setTimeout);
-const TIMES = 10000;
+import { Client } from '../src/index.js';
+
+const TIMES = 10_000;
 
 const node = new Client('concurrent')
 	.on('error', (error, client) => console.error(`[IPC] Error from ${client.name}:`, error))
@@ -18,12 +20,12 @@ const node = new Client('concurrent')
 		let resolved = 0;
 		let logged = false;
 		const before = Date.now();
-		for (let i = 0; i < TIMES; i++) {
+		for (let idx = 0; idx < TIMES; idx++) {
 			// Let Node.js "breathe"
-			if (i % 1000 === 0) await sleep(1);
+			if (idx % 1_000 === 0) await sleep(1);
 
 			client
-				.send(`Test ${i}`)
+				.send(`Test ${idx}`)
 				.then(() => resolved++)
 				.catch(() => failed++)
 				.finally(() => {
@@ -38,4 +40,4 @@ const node = new Client('concurrent')
 	});
 
 // Connect to hello
-node.connectTo(8001).catch((error) => console.error('[IPC] Disconnected!', error));
+node.connectTo(8_001).catch((error) => console.error('[IPC] Disconnected!', error));

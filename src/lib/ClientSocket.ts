@@ -1,10 +1,14 @@
-import { deserialize, serialize } from 'binarytf';
-import { Socket as NetSocket, SocketConnectOpts } from 'node:net';
+import { Socket as NetSocket, type SocketConnectOpts } from 'node:net';
+import { clearTimeout, setTimeout } from 'node:timers';
+
+import { pack, unpack } from 'msgpackr';
+
+import { SocketHandler } from './Structures/Base/SocketHandler.js';
+import { makeError } from './Structures/MessageError.js';
+import { createFromID, readID } from './Util/Header.js';
+import { receivedVClose } from './Util/Shared.js';
+
 import type { Client } from './Client';
-import { SocketHandler } from './Structures/Base/SocketHandler';
-import { makeError } from './Structures/MessageError';
-import { createFromID, readID } from './Util/Header';
-import { receivedVClose } from './Util/Shared';
 
 /**
  * The connection status of this socket.
@@ -30,7 +34,7 @@ export enum ClientSocketStatus {
 	 * The disconnected status, the socket is idle and not ready to operate.
 	 * @since 0.7.0
 	 */
-	Disconnected
+	Disconnected,
 }
 
 export class ClientSocket extends SocketHandler {
@@ -39,26 +43,30 @@ export class ClientSocket extends SocketHandler {
 	 * @since 0.7.0
 	 */
 	public readonly client: Client;
+
 	/**
 	 * The socket's status
 	 * @since 0.7.0
 	 */
 	public status = ClientSocketStatus.Disconnected;
+
 	/**
 	 * How many reconnection attempts this socket has remaining.
 	 * @since 0.7.0
 	 */
 	public retriesRemaining: number;
+
 	private _expectClosing = false;
+
 	private _reconnectionTimeout!: NodeJS.Timer | null;
 
 	public constructor(client: Client) {
 		super(null, new NetSocket());
 		this.client = client;
-		this.retriesRemaining = client.maximumRetries === -1 ? Infinity : client.maximumRetries;
+		this.retriesRemaining = client.maximumRetries === -1 ? Number.POSITIVE_INFINITY : client.maximumRetries;
 
 		Object.defineProperties(this, {
-			_reconnectionTimeout: { value: null, writable: true }
+			_reconnectionTimeout: { value: null, writable: true },
 		});
 	}
 
@@ -83,7 +91,8 @@ export class ClientSocket extends SocketHandler {
 		this.client.servers.set(this.name!, this);
 		this.status = ClientSocketStatus.Ready;
 		this.client.emit('ready', this);
-		this.socket!.on('data', this._onData.bind(this))
+		this.socket
+			.on('data', this._onData.bind(this))
 			.on('connect', this._onConnect.bind(this))
 			.on('close', () => this._onClose(...options))
 			.on('error', this._onError.bind(this));
@@ -137,6 +146,7 @@ export class ClientSocket extends SocketHandler {
 			clearTimeout(this._reconnectionTimeout);
 			this._reconnectionTimeout = null;
 		}
+
 		this.status = ClientSocketStatus.Connected;
 		this.client.emit('connect', this);
 		this.client.emit('ready', this);
@@ -186,10 +196,11 @@ export class ClientSocket extends SocketHandler {
 		await new Promise((resolve, reject) => {
 			const onConnect = () => {
 				this._emitConnect();
-				resolve(cleanup(this.socket!, this));
+				resolve(cleanup(this.socket, this));
 			};
-			const onClose = () => reject(cleanup(this.socket!, this));
-			const onError = (error: any) => reject(cleanup(this.socket!, error));
+
+			const onClose = () => reject(cleanup(this.socket, this));
+			const onError = (error: any) => reject(cleanup(this.socket, error));
 			function cleanup(socket: NetSocket, value: any) {
 				socket.off('connect', onConnect);
 				socket.off('close', onClose);
@@ -197,7 +208,7 @@ export class ClientSocket extends SocketHandler {
 				return value;
 			}
 
-			this.socket!.on('connect', onConnect).on('close', onClose).on('error', onError);
+			this.socket.on('connect', onConnect).on('close', onClose).on('error', onError);
 
 			this._attemptConnection(...options);
 		});
@@ -205,18 +216,18 @@ export class ClientSocket extends SocketHandler {
 
 	private async _handshake() {
 		await new Promise((resolve, reject) => {
-			let timeout: NodeJS.Timeout;
+			let timeout: NodeJS.Timeout | null = null;
 			if (this.client.handshakeTimeout !== -1) {
 				timeout = setTimeout(() => {
 					// eslint-disable-next-line @typescript-eslint/no-use-before-define
 					onError(new Error('Connection Timed Out.'));
-					this.socket!.destroy();
+					this.socket.destroy();
 				}, this.client.handshakeTimeout);
 			}
 
 			const onData = (message: Uint8Array) => {
 				try {
-					const name = deserialize(message, 11);
+					const name = unpack(message.subarray(11));
 					if (typeof name === 'string') {
 						const previous = this.name;
 						this.name = name;
@@ -224,34 +235,37 @@ export class ClientSocket extends SocketHandler {
 
 						// Reply with the name of the node, using the header id and concatenating with the
 						// serialized name afterwards.
-						this.socket!.write(createFromID(readID(message), false, serialize(this.client.name)));
+						this.socket.write(createFromID(readID(message), false, pack(this.client.name)));
 						// eslint-disable-next-line @typescript-eslint/no-use-before-define
-						return resolve(cleanup());
+						resolve(cleanup());
+						return;
 					}
 				} catch {}
+
 				// eslint-disable-next-line @typescript-eslint/no-use-before-define
 				onError(new Error('Unexpected response from the server.'));
-				this.socket!.destroy();
+				this.socket.destroy();
 			};
+
 			// eslint-disable-next-line @typescript-eslint/no-use-before-define
 			const onClose = () => reject(cleanup(this));
 			// eslint-disable-next-line @typescript-eslint/no-use-before-define
 			const onError = (error: any) => reject(cleanup(error));
 			const cleanup = <T = unknown>(value?: T) => {
-				this.socket!.off('data', onData);
-				this.socket!.off('close', onClose);
-				this.socket!.off('error', onError);
+				this.socket.off('data', onData);
+				this.socket.off('close', onClose);
+				this.socket.off('error', onError);
 				if (timeout) clearTimeout(timeout);
 				return value;
 			};
 
-			this.socket!.on('data', onData).on('close', onClose).on('error', onError);
+			this.socket.on('data', onData).on('close', onClose).on('error', onError);
 		});
 	}
 
 	private _attemptConnection(...options: [any, any?, any?]) {
 		this.status = ClientSocketStatus.Connecting;
-		this.socket!.connect(...options);
+		this.socket.connect(...options);
 		this.client.emit('connecting', this);
 	}
 

@@ -1,8 +1,9 @@
-import type { Socket as NetSocket } from 'node:net';
+import { SocketHandler } from './Structures/Base/SocketHandler.js';
+import { makeError } from './Structures/MessageError.js';
+import { type NetworkError, VCLOSE } from './Util/Shared.js';
+
 import type { Server } from './Server';
-import { SocketHandler } from './Structures/Base/SocketHandler';
-import { makeError } from './Structures/MessageError';
-import { NetworkError, VCLOSE } from './Util/Shared';
+import type { Socket as NetSocket } from 'node:net';
 
 /**
  * The connection status of this socket.
@@ -23,11 +24,12 @@ export enum ServerSocketStatus {
 	 * The disconnected status, the socket has been disconnected and cannot operate anymore.
 	 * @since 0.7.0
 	 */
-	Disconnected
+	Disconnected,
 }
 
 export class ServerSocket extends SocketHandler {
 	public readonly server: Server;
+
 	public status = ServerSocketStatus.Disconnected;
 
 	public constructor(server: Server, socket: NetSocket) {
@@ -37,7 +39,10 @@ export class ServerSocket extends SocketHandler {
 
 	public async setup() {
 		this.status = ServerSocketStatus.Identifiying;
-		this.socket!.on('data', this._onData.bind(this)).on('error', this._onError.bind(this)).on('close', this._onClose.bind(this));
+		this.socket
+			.on('data', this._onData.bind(this))
+			.on('error', this._onError.bind(this))
+			.on('close', this._onClose.bind(this));
 
 		try {
 			const sName = await this.send(this.server.name);
@@ -95,7 +100,11 @@ export class ServerSocket extends SocketHandler {
 				if (this.status === ServerSocketStatus.Connected) {
 					this.server.emit('error', makeError('Failed to parse message', processed.data), this);
 				} else {
-					this.server.emit('error', makeError('Failed to process message during connection, calling disconnect', processed.data), this);
+					this.server.emit(
+						'error',
+						makeError('Failed to process message during connection, calling disconnect', processed.data),
+						this,
+					);
 					this.disconnect();
 				}
 			} else {

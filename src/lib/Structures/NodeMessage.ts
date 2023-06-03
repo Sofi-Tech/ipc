@@ -1,6 +1,8 @@
-import { serialize } from 'binarytf';
-import { createFromID } from '../Util/Header';
-import type { SocketHandler } from './Base/SocketHandler';
+import { pack } from 'msgpackr';
+
+import { createFromID } from '../Util/Header.js';
+
+import type { SocketHandler } from './Base/SocketHandler.js';
 
 export class NodeMessage {
 	/**
@@ -38,7 +40,7 @@ export class NodeMessage {
 		Object.defineProperties(this, {
 			client: { value: client },
 			id: { value: id, enumerable: true },
-			receptive: { value: receptive, enumerable: true }
+			receptive: { value: receptive, enumerable: true },
 		});
 
 		this.data = data;
@@ -51,7 +53,7 @@ export class NodeMessage {
 	 */
 	public reply(content: unknown): void {
 		if (this.receptive && this.client.socket.writable) {
-			this.client.socket!.write(createFromID(this.id, false, serialize(content)));
+			this.client.socket.write(createFromID(this.id, false, pack(content)));
 		}
 	}
 
@@ -71,7 +73,7 @@ export class NodeMessage {
 		return {
 			id: this.id,
 			data: this.data,
-			receptive: this.receptive
+			receptive: this.receptive,
 		};
 	}
 

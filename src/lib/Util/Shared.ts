@@ -1,6 +1,8 @@
-import { serialize } from 'binarytf';
+import { pack } from 'msgpackr';
+
+import { createFromID } from './Header.js';
+
 import type { RawMessage } from '../Structures/Base/SocketHandler';
-import { createFromID } from './Header';
 
 /**
  * The send options.
@@ -78,7 +80,7 @@ export const VCLOSE_SIGNAL = 'VCLOSE';
  * @internal
  * @private
  */
-export const VCLOSE = createFromID(0, false, serialize(VCLOSE_SIGNAL));
+export const VCLOSE = createFromID(0, false, pack(VCLOSE_SIGNAL));
 
 /**
  * Check whether the message is a VCLOSE signal.

@@ -1,10 +1,14 @@
 {
-	"extends": "@sapphire",
-	"rules": {
-		"no-useless-constructor": 0,
-		"@typescript-eslint/unified-signatures": 0
+	"root": true,
+	"extends": ["mahir/common", "mahir/node", "mahir/typescript", "mahir/prettier"],
+	"ignorePatterns": ["dist"],
+	"parserOptions": {
+		"project": "./tsconfig.eslint.json"
 	},
-	"globals": {
-		"BigInt": true
+	"rules": {
+		"no-param-reassign": "off",
+		"no-warning-comments": "off",
+		"promise/prefer-await-to-callbacks": "off",
+		"@typescript-eslint/unified-signatures": "off"
 	}
 }

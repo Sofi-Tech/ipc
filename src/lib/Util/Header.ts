@@ -1,4 +1,4 @@
-let i = 0;
+let incrementCount = 0;
 
 /**
  * Create a new message.
@@ -11,11 +11,11 @@ let i = 0;
 export function create(receptive: boolean, bytes: Uint8Array) {
 	const header = new Uint8Array(11 + bytes.byteLength);
 	writeDate(header, Date.now());
-	writeIncrement(header, i);
+	writeIncrement(header, incrementCount);
 	writeReceptive(header, receptive);
 	write32At(header, bytes.byteLength, 7);
 	header.set(bytes, 11);
-	i = i < 0xffff ? i + 1 : 0;
+	incrementCount = incrementCount < 0xffff ? incrementCount + 1 : 0;
 	return header;
 }
 
@@ -49,7 +49,7 @@ export function read(header: Uint8Array) {
 	return {
 		id: readID(header),
 		receptive: Boolean(header[6]),
-		byteLength: read32At(header, 7)
+		byteLength: read32At(header, 7),
 	};
 }
 

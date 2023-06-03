@@ -48,7 +48,7 @@ However, multiple clients can connect to a server just fine.
 
 ## Communication
 
-Veza uses binary-encoded messages to communicate between all sockets, to do so, it uses [Binary Term Format][binarytf]
+Veza uses binary-encoded messages to communicate between all sockets, to do so, it uses [msgpackr][msgpackr]
 to encode messages before sending them, and all the communication happens in `ClientSocket` and in `ServerSocket`
 exclusively, since they define a socket connection.
 
@@ -65,7 +65,7 @@ using the Veza protocol is the following:
 1. `Receptive` header defines whether the message is `read-only` or the server is awaiting its response,
    will always be `0x00` for non-receptive, or `0x01` for receptive.
 1. `Byte-Length` is used to define how long the message is in bytes.
-1. `Bytes` is the message encoded with [Binary Term Format][binarytf].
+1. `Bytes` is the message encoded with [msgpackr][msgpackr].
 
 When a message is receptive, it must be replied **with the same ID**, this will help the sender identify the original
 message and resolve the value (like a `HTTP GET` would work, where you give the URL and you get the response from the
@@ -85,10 +85,10 @@ The connection between the `Client` and the `Server` is done over TCP but has an
 
 The handshake has two purposes:
 
--   **Verify**: This step helps identifying if the counterpart "understands" the same language. The slight decode error or
-    type mismatch should end on a prompt disconnection.
--   **Identify**: Veza nodes have a name for which they are identified as. For example if a `Server` is named `master`,
-    all `Server`s connected to it may send messages to it using `master` as its name.
+- **Verify**: This step helps identifying if the counterpart "understands" the same language. The slight decode error or
+  type mismatch should end on a prompt disconnection.
+- **Identify**: Veza nodes have a name for which they are identified as. For example if a `Server` is named `master`,
+  all `Server`s connected to it may send messages to it using `master` as its name.
 
 ```java
 // Stablish a TCP connection by connecting Client
@@ -136,6 +136,6 @@ The handshake has two purposes:
 └────────┘                              └────────┘
 ```
 
-[binarytf]: https://github.com/binarytf
+[msgpackr]: https://github.com/kriszyp/msgpackr
 [duplex]: https://en.wikipedia.org/wiki/Duplex_(telecommunications)
 [crypto_nonce]: https://en.wikipedia.org/wiki/Cryptographic_nonce

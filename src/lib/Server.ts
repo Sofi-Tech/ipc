@@ -1,6 +1,8 @@
 import { EventEmitter } from 'node:events';
-import { ListenOptions, Server as NetServer, Socket as NetSocket } from 'node:net';
-import { ServerSocket } from './ServerSocket';
+import { type ListenOptions, Server as NetServer, type Socket as NetSocket } from 'node:net';
+
+import { ServerSocket } from './ServerSocket.js';
+
 import type { NodeMessage } from './Structures/NodeMessage';
 import type { BroadcastOptions, NetworkError, SendOptions } from './Util/Shared';
 
@@ -28,7 +30,7 @@ export enum ServerStatus {
 	 * The server is closed and free to listen to a port.
 	 * @since 0.7.0
 	 */
-	Closed
+	Closed,
 }
 
 /**
@@ -81,7 +83,7 @@ export class Server extends EventEmitter {
 	public constructor(
 		name: string,
 		options?: { allowHalfOpen?: boolean; pauseOnConnect?: boolean },
-		connectionListener?: (socket: NetSocket) => void
+		connectionListener?: (socket: NetSocket) => void,
 	);
 
 	public constructor(name: string, ...args: any[]) {
@@ -95,8 +97,8 @@ export class Server extends EventEmitter {
 	 * @since 0.7.0
 	 * @param name The NodeSocket to get.
 	 */
-	public get(name: string | ServerSocket) {
-		if (typeof name === 'string') return this.sockets.get(name) || null;
+	public get(name: ServerSocket | string) {
+		if (typeof name === 'string') return this.sockets.get(name) ?? null;
 		if (name instanceof ServerSocket) return name;
 		throw new TypeError('Expected a string or a ServerClient instance.');
 	}
@@ -106,7 +108,7 @@ export class Server extends EventEmitter {
 	 * @since 0.7.0
 	 * @param name The NodeSocket to get.
 	 */
-	public has(name: string | ServerSocket) {
+	public has(name: ServerSocket | string) {
 		return Boolean(this.get(name));
 	}
 
@@ -117,7 +119,7 @@ export class Server extends EventEmitter {
 	 * @param data The data to send to the socket.
 	 * @param options The options for this message.
 	 */
-	public sendTo(name: string | ServerSocket, data: any, options?: SendOptions): Promise<any> {
+	public sendTo(name: ServerSocket | string, data: any, options?: SendOptions): Promise<any> {
 		const nodeSocket = this.get(name);
 		return nodeSocket
 			? nodeSocket.send(data, options)
@@ -130,7 +132,7 @@ export class Server extends EventEmitter {
 	 * @param data The data to send to other sockets.
 	 * @param options The options for this broadcast.
 	 */
-	public broadcast(data: any, { receptive, timeout, filter }: BroadcastOptions = {}): Promise<Array<any>> {
+	public broadcast(data: any, { receptive, timeout, filter }: BroadcastOptions = {}): Promise<any[]> {
 		if (filter && !(filter instanceof RegExp)) {
 			throw new TypeError(`filter must be a RegExp instance.`);
 		}
@@ -140,6 +142,7 @@ export class Server extends EventEmitter {
 		for (const [name, client] of this.sockets.entries()) {
 			if (test(name)) promises.push(client.send(data, { receptive, timeout }));
 		}
+
 		return Promise.all(promises);
 	}
 
@@ -149,7 +152,12 @@ export class Server extends EventEmitter {
 	 * @param options The options to pass to net.Server#listen.
 	 * @see https://nodejs.org/dist/latest-v12.x/docs/api/net.html#net_server_listen
 	 */
-	public async listen(port?: number, hostname?: string, backlog?: number, listeningListener?: () => void): Promise<this>;
+	public async listen(
+		port?: number,
+		hostname?: string,
+		backlog?: number,
+		listeningListener?: () => void,
+	): Promise<this>;
 	public async listen(port?: number, hostname?: string, listeningListener?: () => void): Promise<this>;
 	public async listen(port?: number, backlog?: number, listeningListener?: () => void): Promise<this>;
 	public async listen(port?: number, listeningListener?: () => void): Promise<this>;
@@ -174,13 +182,17 @@ export class Server extends EventEmitter {
 				this.status = status;
 				return value;
 			};
+
 			this.server.on('listening', onListening).on('close', onClose).on('error', onError);
 
 			this.server.listen(...options);
 		});
 
 		this.emit('open');
-		this.server.on('connection', this._onConnection.bind(this)).on('error', this._onError.bind(this)).on('close', this._onClose.bind(this));
+		this.server
+			.on('connection', this._onConnection.bind(this))
+			.on('error', this._onError.bind(this))
+			.on('close', this._onClose.bind(this));
 
 		return this;
 	}
@@ -198,6 +210,7 @@ export class Server extends EventEmitter {
 		for (const socket of this.sockets.values()) {
 			socket.disconnect(closeSockets);
 		}
+
 		await new Promise<void>((resolve, reject) => {
 			this.server.close((error) => {
 				if (error) {
@@ -241,66 +254,33 @@ export class Server extends EventEmitter {
 
 export interface Server {
 	/**
-	 * Emitted when the server receives data.
+	 * Emits raw data received from the underlying socket.
 	 */
-	on(event: 'raw', listener: (data: Uint8Array, client: ServerSocket) => void): this;
+	emit(event: 'raw', data: Uint8Array, client: ServerSocket): boolean;
 	/**
-	 * Emitted when the server opens.
+	 * Emits a server open event.
 	 */
-	on(event: 'open', listener: () => void): this;
+	emit(event: 'open'): boolean;
 	/**
-	 * Emitted when the server closes.
+	 * Emits a server close event.
 	 */
-	on(event: 'close', listener: () => void): this;
+	emit(event: 'close'): boolean;
 	/**
-	 * Emitted when an error occurs.
+	 * Emits a server error event.
 	 */
-	on(event: 'error', listener: (error: Error | NetworkError, client: ServerSocket | null) => void): this;
+	emit(event: 'error', error: Error | NetworkError, client: ServerSocket | null): boolean;
 	/**
-	 * Emitted when a new connection is made and set up.
+	 * Emits a connection made and set up to the server.
 	 */
-	on(event: 'connect', listener: (client: ServerSocket) => void): this;
+	emit(event: 'connect', client: ServerSocket): boolean;
 	/**
-	 * Emitted when a client disconnects from the server.
+	 * Emits a disconnection of a client from the server.
 	 */
-	on(event: 'disconnect', listener: (client: ServerSocket) => void): this;
+	emit(event: 'disconnect', client: ServerSocket): boolean;
 	/**
-	 * Emitted when the server receives and parsed a message.
+	 * Emits a parsed NodeMessage instance ready for usage.
 	 */
-	on(event: 'message', listener: (message: NodeMessage, client: ServerSocket) => void): this;
-
-	/**
-	 * Emitted when the server receives data.
-	 */
-	once(event: 'raw', listener: (data: Uint8Array, client: ServerSocket) => void): this;
-	/**
-	 * Emitted when the server opens.
-	 */
-	once(event: 'open', listener: () => void): this;
-	/**
-	 * Emitted when the server closes.
-	 */
-	once(event: 'close', listener: () => void): this;
-	/**
-	 * Emitted when an error occurs.
-	 */
-	once(event: 'error', listener: (error: Error | NetworkError, client: ServerSocket | null) => void): this;
-	/**
-	 * Emitted when a new connection is made and set up.
-	 */
-	once(event: 'connect', listener: (client: ServerSocket) => void): this;
-	/**
-	 * Emitted when a client disconnects from the server.
-	 */
-	once(event: 'disconnect', listener: (client: ServerSocket) => void): this;
-	/**
-	 * Emitted once when a server is ready.
-	 */
-	once(event: 'ready', listener: () => void): this;
-	/**
-	 * Emitted when the server receives and parsed a message.
-	 */
-	once(event: 'message', listener: (message: NodeMessage, client: ServerSocket) => void): this;
+	emit(event: 'message', message: NodeMessage, client: ServerSocket): boolean;
 
 	/**
 	 * Emitted when the server receives data.
@@ -330,33 +310,66 @@ export interface Server {
 	 * Emitted when the server receives and parsed a message.
 	 */
 	off(event: 'message', listener: (message: NodeMessage, client: ServerSocket) => void): this;
+	/**
+	 * Emitted when the server receives data.
+	 */
+	on(event: 'raw', listener: (data: Uint8Array, client: ServerSocket) => void): this;
 
 	/**
-	 * Emits raw data received from the underlying socket.
+	 * Emitted when the server opens.
 	 */
-	emit(event: 'raw', data: Uint8Array, client: ServerSocket): boolean;
+	on(event: 'open', listener: () => void): this;
 	/**
-	 * Emits a server open event.
+	 * Emitted when the server closes.
 	 */
-	emit(event: 'open'): boolean;
+	on(event: 'close', listener: () => void): this;
 	/**
-	 * Emits a server close event.
+	 * Emitted when an error occurs.
 	 */
-	emit(event: 'close'): boolean;
+	on(event: 'error', listener: (error: Error | NetworkError, client: ServerSocket | null) => void): this;
 	/**
-	 * Emits a server error event.
+	 * Emitted when a new connection is made and set up.
 	 */
-	emit(event: 'error', error: Error | NetworkError, client: ServerSocket | null): boolean;
+	on(event: 'connect', listener: (client: ServerSocket) => void): this;
 	/**
-	 * Emits a connection made and set up to the server.
+	 * Emitted when a client disconnects from the server.
 	 */
-	emit(event: 'connect', client: ServerSocket): boolean;
+	on(event: 'disconnect', listener: (client: ServerSocket) => void): this;
 	/**
-	 * Emits a disconnection of a client from the server.
+	 * Emitted when the server receives and parsed a message.
 	 */
-	emit(event: 'disconnect', client: ServerSocket): boolean;
+	on(event: 'message', listener: (message: NodeMessage, client: ServerSocket) => void): this;
 	/**
-	 * Emits a parsed NodeMessage instance ready for usage.
+	 * Emitted once when a server is ready.
 	 */
-	emit(event: 'message', message: NodeMessage, client: ServerSocket): boolean;
+	once(event: 'ready', listener: () => void): this;
+
+	/**
+	 * Emitted when the server receives and parsed a message.
+	 */
+	once(event: 'message', listener: (message: NodeMessage, client: ServerSocket) => void): this;
+	/**
+	 * Emitted when the server receives data.
+	 */
+	once(event: 'raw', listener: (data: Uint8Array, client: ServerSocket) => void): this;
+	/**
+	 * Emitted when the server opens.
+	 */
+	once(event: 'open', listener: () => void): this;
+	/**
+	 * Emitted when the server closes.
+	 */
+	once(event: 'close', listener: () => void): this;
+	/**
+	 * Emitted when an error occurs.
+	 */
+	once(event: 'error', listener: (error: Error | NetworkError, client: ServerSocket | null) => void): this;
+	/**
+	 * Emitted when a new connection is made and set up.
+	 */
+	once(event: 'connect', listener: (client: ServerSocket) => void): this;
+	/**
+	 * Emitted when a client disconnects from the server.
+	 */
+	once(event: 'disconnect', listener: (client: ServerSocket) => void): this;
 }
