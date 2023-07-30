@@ -31,11 +31,11 @@
 		"msgpackr": "^1.9.5"
 	},
 	"devDependencies": {
-		"@types/node": "^18.17.0",
+		"@types/node": "^18.17.1",
 		"@typescript-eslint/eslint-plugin": "^5.62.0",
 		"@typescript-eslint/parser": "^5.62.0",
-		"eslint": "^8.45.0",
-		"eslint-config-mahir": "^0.0.29",
+		"eslint": "^8.46.0",
+		"eslint-config-mahir": "^0.0.30",
 		"prettier": "^2.8.8",
 		"tsup": "^6.7.0",
 		"typescript": "^5.1.6"
