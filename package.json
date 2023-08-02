@@ -37,7 +37,7 @@
 		"eslint": "^8.46.0",
 		"eslint-config-mahir": "^0.0.30",
 		"prettier": "^2.8.8",
-		"tsup": "^6.7.0",
+		"tsup": "^7.2.0",
 		"typescript": "^5.1.6"
 	},
 	"repository": {
