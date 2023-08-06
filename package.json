@@ -28,14 +28,14 @@
 		"typecheck": "tsc -p tsconfig.eslint.json"
 	},
 	"dependencies": {
-		"msgpackr": "^1.9.5"
+		"msgpackr": "^1.9.6"
 	},
 	"devDependencies": {
-		"@types/node": "^18.17.1",
+		"@types/node": "^18.17.3",
 		"@typescript-eslint/eslint-plugin": "^5.62.0",
 		"@typescript-eslint/parser": "^5.62.0",
 		"eslint": "^8.46.0",
-		"eslint-config-mahir": "^0.0.30",
+		"eslint-config-mahir": "^0.0.31",
 		"prettier": "^2.8.8",
 		"tsup": "^6.7.0",
 		"typescript": "^5.1.6"
