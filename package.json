@@ -31,7 +31,7 @@
 		"msgpackr": "^1.9.7"
 	},
 	"devDependencies": {
-		"@types/node": "^18.17.5",
+		"@types/node": "^18.17.6",
 		"@typescript-eslint/eslint-plugin": "^5.62.0",
 		"@typescript-eslint/parser": "^5.62.0",
 		"eslint": "^8.47.0",
@@ -63,5 +63,5 @@
 	"bugs": {
 		"url": "https://github.com/Sofi-Tech/ipc/issues"
 	},
-	"packageManager": "yarn@3.6.1"
+	"packageManager": "yarn@3.6.2"
 }
