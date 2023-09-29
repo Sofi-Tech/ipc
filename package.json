@@ -28,17 +28,17 @@
 		"typecheck": "tsc -p tsconfig.eslint.json"
 	},
 	"dependencies": {
-		"msgpackr": "^1.9.7"
+		"msgpackr": "^1.9.9"
 	},
 	"devDependencies": {
-		"@types/node": "^18.17.6",
+		"@types/node": "^18.18.1",
 		"@typescript-eslint/eslint-plugin": "^5.62.0",
 		"@typescript-eslint/parser": "^5.62.0",
-		"eslint": "^8.47.0",
-		"eslint-config-mahir": "^0.0.31",
+		"eslint": "^8.50.0",
+		"eslint-config-mahir": "^0.0.33",
 		"prettier": "^2.8.8",
 		"tsup": "^6.7.0",
-		"typescript": "^5.1.6"
+		"typescript": "^5.2.2"
 	},
 	"repository": {
 		"type": "git",
@@ -63,5 +63,5 @@
 	"bugs": {
 		"url": "https://github.com/Sofi-Tech/ipc/issues"
 	},
-	"packageManager": "yarn@3.6.2"
+	"packageManager": "yarn@3.6.3"
 }
